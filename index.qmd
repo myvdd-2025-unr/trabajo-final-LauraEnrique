@@ -1,0 +1,53 @@
+---
+title: "Generación de Informe de Relevamiento Focos Aedicos"
+author: "Ing. Laura Enrique"
+format: html
+embed-resources: true
+editor: visual
+---
+
+## Introducción
+
+La generación de este informe se origina en la necesidad de los efectores de salud de la Isla de Pascua de obtener información sobre los relevamientos periódicos realizados para la detección de focos aédicos consistentes en inspeccion de viviendas, detección de fuentes de larvas e intervenciones que consisten en descacharrado de objetos y fumigaciones.
+
+## Metodología de trabajo
+
+Al terminar el relevamiento programado, se procesan todos los archivos mediante el entorno del lenguaje **R**.\
+El proceso consiste en transformaciones aplicadas a cada archivo y la unión de datos transformados en el archivo **DatosParaAnalisis.csv**.\
+Los datos son aportados por el efector de salud que realiza inspección en vivienda en archivos **.csv**, generados por una aplicación implementada ad hoc.\
+Cada archivo está creado en la fecha de visita programada por el efector.\
+El diseño de esta implementación informática contempla su reutilización en otras campañas de relevamiento.\
+Por tanto, el usuario para obtener el nuevo informe, solo debe ubicar los archivos **.csv** en la carpeta **DatosRelevados**\
+
+## Informe
+
+| TIPO DE TRABAJO                      | Foco Aedico | Tratado | Inspeccionado |
+|:-------------------------------------|:-----------:|:-------:|:-------------:|
+| FUMIGACION                           |     40      |    0    |       0       |
+| INSPECCION DOMICILIARIA              |      0      |    0    |      32       |
+| INSPECCION DOMICILIARIA - FUMIGACION |     368     |   16    |       8       |
+
+: Trabajos por Estado vivienda
+
+```{r paquetes}
+#| include: false
+library(tidyverse)
+library(ggplot2)
+library(fs)
+```
+
+```{r}
+# —-------------------------—---------------------------------------------------
+#Crea grafico de barras
+# —-------------------------—---------------------------------------------------
+#Obtiene datos de archivo
+datosTrabajo <- read_csv("tablaTrabajo.csv")
+#Crea gráfico
+ggplot(data = datosTrabajo) + 
+  aes(x = TIPO_DE_TRABAJO, y = FA_TOTALES, fill = TIPO_DE_TRABAJO) +
+    geom_bar(stat="identity") +
+  scale_x_discrete(name = "Tipo de trabajo") + 
+  scale_y_discrete(name = "Foco Aedico", breaks = c(0, 50, 100, 150, 200, 250, 300, 350,400)) + 
+  #facet_wrap(~ TIPO_DE_TRABAJO) +
+  scale_fill_manual(values=c("orange", "yellow", "red"))
+```
